@@ -1,0 +1,87 @@
+# Docker Compose for the Skills Portfolio app.
+#
+# Assumes Traefik is already running on your infra as a reverse proxy,
+# exposed on ports 80/443 and attached to an external network called
+# `traefik` (rename via the TRAEFIK_NETWORK env var if you use a
+# different name). Traefik routes requests to the api/web services
+# based on the host rules below.
+#
+# Required env vars (put them in a `.env` file next to this one):
+#   DOMAIN_WEB=portfolio.example.com
+#   DOMAIN_API=api.portfolio.example.com
+#   DJANGO_SECRET_KEY=<long random string>
+#   TRAEFIK_CERT_RESOLVER=letsencrypt     # name of your Traefik certresolver
+#   TRAEFIK_NETWORK=traefik               # external Traefik network name
+#
+# Optional:
+#   DATABASE_URL=postgres://portfolio:portfolio@db:5432/portfolio
+#     (uncomment the `db` service below and the depends_on entry)
+
+services:
+  api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: "false"
+      DJANGO_ALLOWED_HOSTS: ${DOMAIN_API},localhost
+      CORS_ALLOWED_ORIGINS: https://${DOMAIN_WEB}
+      CSRF_TRUSTED_ORIGINS: https://${DOMAIN_WEB},https://${DOMAIN_API}
+      # DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - api-data:/app/data
+    networks:
+      - traefik
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik}"
+      - "traefik.http.routers.skills-api.rule=Host(`${DOMAIN_API}`)"
+      - "traefik.http.routers.skills-api.entrypoints=websecure"
+      - "traefik.http.routers.skills-api.tls=true"
+      - "traefik.http.routers.skills-api.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
+      - "traefik.http.services.skills-api.loadbalancer.server.port=8000"
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: https://${DOMAIN_API}/api
+    restart: unless-stopped
+    depends_on:
+      - api
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik}"
+      - "traefik.http.routers.skills-web.rule=Host(`${DOMAIN_WEB}`)"
+      - "traefik.http.routers.skills-web.entrypoints=websecure"
+      - "traefik.http.routers.skills-web.tls=true"
+      - "traefik.http.routers.skills-web.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}"
+      - "traefik.http.services.skills-web.loadbalancer.server.port=80"
+
+  # Uncomment to use Postgres instead of SQLite.
+  # db:
+  #   image: postgres:16-alpine
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_DB: portfolio
+  #     POSTGRES_USER: portfolio
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #   volumes:
+  #     - db-data:/var/lib/postgresql/data
+  #   networks:
+  #     - internal
+
+volumes:
+  api-data:
+  # db-data:
+
+networks:
+  traefik:
+    name: ${TRAEFIK_NETWORK:-traefik}
+    external: true
+  internal:
+    driver: bridge
