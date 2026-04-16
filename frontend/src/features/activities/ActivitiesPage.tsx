@@ -68,10 +68,12 @@ export function ActivitiesPage() {
       </div>
 
       {view === "table" ? (
-        <ActivitiesTable
-          activities={activities}
-          onEdit={(id) => setMode({ type: "edit", id })}
-        />
+        <div className="relative left-1/2 -translate-x-1/2 w-screen px-6">
+          <ActivitiesTable
+            activities={activities}
+            onEdit={(id) => setMode({ type: "edit", id })}
+          />
+        </div>
       ) : activities.length === 0 ? (
         <EmptyState onCreate={() => setMode("create")} />
       ) : (
