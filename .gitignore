@@ -12,6 +12,7 @@ venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+*.egg-info/
 backend/staticfiles/
 backend/data/
 
@@ -20,6 +21,7 @@ node_modules/
 frontend/dist/
 frontend/.vite/
 frontend/tsconfig.tsbuildinfo
+frontend/e2e/*.png
 
 # Editors / OS
 .vscode/
