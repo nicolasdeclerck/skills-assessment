@@ -32,22 +32,11 @@ class ActivitySerializer(serializers.ModelSerializer):
             "title",
             "description",
             "organization",
-            "start_date",
-            "end_date",
             "skills",
             "created_at",
             "updated_at",
         )
         read_only_fields = ("id", "created_at", "updated_at")
-
-    def validate(self, attrs):
-        start = attrs.get("start_date") or getattr(self.instance, "start_date", None)
-        end = attrs.get("end_date") or getattr(self.instance, "end_date", None)
-        if start and end and end < start:
-            raise serializers.ValidationError(
-                {"end_date": "La date de fin doit être postérieure à la date de début."}
-            )
-        return attrs
 
     def create(self, validated_data):
         skills_data = validated_data.pop("skills", [])
