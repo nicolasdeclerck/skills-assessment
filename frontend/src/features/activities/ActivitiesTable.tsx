@@ -68,7 +68,7 @@ export function ActivitiesTable({ activities, onEdit }: Props) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-200">
-          <tr className="bg-brand-50/40 align-top">
+          <tr className="bg-brand-50/40 align-middle">
             <td className="px-3 py-2">
               <input
                 className="input"
@@ -125,7 +125,7 @@ export function ActivitiesTable({ activities, onEdit }: Props) {
             </tr>
           ) : (
             activities.map((a) => (
-              <tr key={a.id} className="hover:bg-slate-50 align-top">
+              <tr key={a.id} className="hover:bg-slate-50 align-middle">
                 <td className="px-3 py-2">
                   <div className="font-medium text-slate-900">{a.title}</div>
                 </td>
