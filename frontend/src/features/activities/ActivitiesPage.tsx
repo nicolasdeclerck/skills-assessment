@@ -19,7 +19,7 @@ export function ActivitiesPage() {
   const { data, isLoading, isError } = useActivities();
   const createMutation = useCreateActivity();
   const [mode, setMode] = useState<"idle" | "create" | { type: "edit"; id: number }>("idle");
-  const [view, setView] = useState<ViewMode>("cards");
+  const [view, setView] = useState<ViewMode>("table");
 
   if (isLoading) return <div className="py-10 text-center text-slate-500">Chargement…</div>;
   if (isError) return <div className="py-10 text-center text-red-600">Erreur de chargement.</div>;
@@ -68,10 +68,12 @@ export function ActivitiesPage() {
       </div>
 
       {view === "table" ? (
-        <ActivitiesTable
-          activities={activities}
-          onEdit={(id) => setMode({ type: "edit", id })}
-        />
+        <div className="relative left-1/2 -translate-x-1/2 w-screen px-6">
+          <ActivitiesTable
+            activities={activities}
+            onEdit={(id) => setMode({ type: "edit", id })}
+          />
+        </div>
       ) : activities.length === 0 ? (
         <EmptyState onCreate={() => setMode("create")} />
       ) : (
