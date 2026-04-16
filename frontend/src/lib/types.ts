@@ -28,8 +28,6 @@ export interface Activity {
   title: string;
   description: string;
   organization: string;
-  start_date: string;
-  end_date: string | null;
   skills: Skill[];
   created_at: string;
   updated_at: string;

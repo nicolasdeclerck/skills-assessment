@@ -14,8 +14,6 @@ const emptyValue: ActivityInput = {
   title: "",
   description: "",
   organization: "",
-  start_date: "",
-  end_date: null,
   skills: [],
 };
 
@@ -25,8 +23,6 @@ function toInput(activity?: Activity): ActivityInput {
     title: activity.title,
     description: activity.description,
     organization: activity.organization,
-    start_date: activity.start_date,
-    end_date: activity.end_date,
     skills: activity.skills.map((s) => ({ id: s.id, name: s.name, level: s.level })),
   };
 }
@@ -71,7 +67,6 @@ export function ActivityForm({ initialValue, onCancel, onSubmit }: Props) {
       await onSubmit({
         ...value,
         skills: skills.map((s) => ({ ...s, name: s.name.trim() })),
-        end_date: value.end_date || null,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur lors de l'enregistrement.");
@@ -103,30 +98,6 @@ export function ActivityForm({ initialValue, onCancel, onSubmit }: Props) {
           value={value.organization}
           onChange={(e) => update("organization", e.target.value)}
         />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="label" htmlFor="start_date">Début</label>
-          <input
-            id="start_date"
-            type="date"
-            required
-            className="input"
-            value={value.start_date}
-            onChange={(e) => update("start_date", e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="label" htmlFor="end_date">Fin (vide si en cours)</label>
-          <input
-            id="end_date"
-            type="date"
-            className="input"
-            value={value.end_date ?? ""}
-            onChange={(e) => update("end_date", e.target.value || null)}
-          />
-        </div>
       </div>
 
       <div>

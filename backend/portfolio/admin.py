@@ -10,7 +10,7 @@ class SkillInline(admin.TabularInline):
 
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ("title", "user", "start_date", "end_date", "organization")
+    list_display = ("title", "user", "organization")
     list_filter = ("user",)
     search_fields = ("title", "description", "organization")
     inlines = [SkillInline]

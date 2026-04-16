@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Briefcase, CalendarRange, Pencil, Plus, Trash2 } from "lucide-react";
+import { Briefcase, LayoutGrid, Pencil, Plus, Table as TableIcon, Trash2 } from "lucide-react";
+import clsx from "clsx";
 
 import type { Activity, ActivityInput } from "../../lib/types";
+import { ActivitiesTable } from "./ActivitiesTable";
 import { ActivityForm } from "./ActivityForm";
 import { SkillLevelBadge } from "./SkillLevelBadge";
 import {
@@ -11,19 +13,13 @@ import {
   useUpdateActivity,
 } from "./queries";
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("fr-FR", { year: "numeric", month: "short" });
-}
-
-function formatRange(activity: Activity): string {
-  const end = activity.end_date ? formatDate(activity.end_date) : "en cours";
-  return `${formatDate(activity.start_date)} → ${end}`;
-}
+type ViewMode = "cards" | "table";
 
 export function ActivitiesPage() {
   const { data, isLoading, isError } = useActivities();
   const createMutation = useCreateActivity();
   const [mode, setMode] = useState<"idle" | "create" | { type: "edit"; id: number }>("idle");
+  const [view, setView] = useState<ViewMode>("cards");
 
   if (isLoading) return <div className="py-10 text-center text-slate-500">Chargement…</div>;
   if (isError) return <div className="py-10 text-center text-red-600">Erreur de chargement.</div>;
@@ -54,19 +50,29 @@ export function ActivitiesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">Mes activités</h2>
           <p className="text-sm text-slate-500">
             Documentez vos missions et les compétences que vous y avez exercées.
           </p>
         </div>
-        <button className="btn-primary" onClick={() => setMode("create")}>
-          <Plus className="h-4 w-4" /> Nouvelle activité
-        </button>
+        <div className="flex items-center gap-2">
+          <ViewToggle value={view} onChange={setView} />
+          {view === "cards" && (
+            <button className="btn-primary" onClick={() => setMode("create")}>
+              <Plus className="h-4 w-4" /> Nouvelle activité
+            </button>
+          )}
+        </div>
       </div>
 
-      {activities.length === 0 ? (
+      {view === "table" ? (
+        <ActivitiesTable
+          activities={activities}
+          onEdit={(id) => setMode({ type: "edit", id })}
+        />
+      ) : activities.length === 0 ? (
         <EmptyState onCreate={() => setMode("create")} />
       ) : (
         <ul className="space-y-3">
@@ -79,6 +85,44 @@ export function ActivitiesPage() {
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+function ViewToggle({ value, onChange }: { value: ViewMode; onChange: (v: ViewMode) => void }) {
+  const baseClass =
+    "inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium transition";
+  return (
+    <div
+      role="tablist"
+      aria-label="Mode d'affichage"
+      className="inline-flex rounded-md border border-slate-300 bg-white overflow-hidden"
+    >
+      <button
+        type="button"
+        role="tab"
+        aria-selected={value === "cards"}
+        className={clsx(
+          baseClass,
+          value === "cards" ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-50",
+        )}
+        onClick={() => onChange("cards")}
+      >
+        <LayoutGrid className="h-4 w-4" /> Cartes
+      </button>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={value === "table"}
+        className={clsx(
+          baseClass,
+          "border-l border-slate-300",
+          value === "table" ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-50",
+        )}
+        onClick={() => onChange("table")}
+      >
+        <TableIcon className="h-4 w-4" /> Tableau
+      </button>
     </div>
   );
 }
@@ -114,16 +158,13 @@ function ActivityCard({ activity, onEdit }: { activity: Activity; onEdit: () => 
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <h3 className="text-base font-semibold text-slate-900">{activity.title}</h3>
-          <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-slate-500">
-            {activity.organization && (
+          {activity.organization && (
+            <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-slate-500">
               <span className="inline-flex items-center gap-1">
                 <Briefcase className="h-4 w-4" /> {activity.organization}
               </span>
-            )}
-            <span className="inline-flex items-center gap-1">
-              <CalendarRange className="h-4 w-4" /> {formatRange(activity)}
-            </span>
-          </div>
+            </div>
+          )}
           {activity.description && (
             <p className="mt-3 text-sm text-slate-700 whitespace-pre-line">{activity.description}</p>
           )}

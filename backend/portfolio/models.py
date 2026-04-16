@@ -16,14 +16,12 @@ class Activity(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     organization = models.CharField(max_length=200, blank=True)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-start_date", "-created_at"]
-        indexes = [models.Index(fields=["user", "-start_date"])]
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "-created_at"])]
 
     def __str__(self) -> str:  # pragma: no cover - trivial
         return self.title

@@ -22,7 +22,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
         return (
             Activity.objects.filter(user=self.request.user)
             .prefetch_related("skills")
-            .order_by("-start_date", "-created_at")
+            .order_by("-created_at")
         )
 
     def perform_create(self, serializer):
