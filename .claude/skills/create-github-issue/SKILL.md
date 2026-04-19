@@ -63,7 +63,7 @@ If any of the three is unclear, ask **one** clarifying question before continuin
 
 ### 2. Sharpen the request (when the ask is vague)
 
-If the user's request is fuzzy — no clear "why", no acceptance criteria, or a scope that could fit anywhere between a one-line fix and a multi-week feature — hand off to the `brainstorming` skill from the Superpowers plugin (invoked as `/superpowers:brainstorm`) **before** drafting. It runs a short Socratic round and returns a refined spec you can then turn into a ticket.
+If the user's request is fuzzy — no clear "why", no acceptance criteria, or a scope that could fit anywhere between a one-line fix and a multi-week feature — invoke the local `brainstorming` skill (`.claude/skills/brainstorming/`) **before** drafting. It runs a short Socratic round and returns a refined spec you then turn into a ticket.
 
 Trigger this step when any of these is true:
 
@@ -73,7 +73,7 @@ Trigger this step when any of these is true:
 
 Skip it when the request is already concrete: precise repro steps for a bug, a tightly scoped chore, or a feature the user has clearly pre-designed.
 
-If the `brainstorming` skill is unavailable (plugin not installed), fall back to asking the user **2–3** crisp clarifying questions yourself, then continue.
+Once `brainstorming` returns an approved spec, continue with step 3 using that spec as the source of truth instead of the user's original phrasing.
 
 ### 3. Gather context (lightweight)
 
